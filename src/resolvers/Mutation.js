@@ -1,47 +1,82 @@
+import bycrypt from "bcryptjs";
+import { getUserId, generateToken } from "../utils/authenticate";
+import hashPassword from "../utils/hashPassword";
+
 const Mutation = {
-  async createUser(parent, { data }, { prisma }, info) {
-    const emailTaken = await prisma.exists.User({ email: data.email });
-    if (emailTaken) {
-      throw new Error("Email has taken");
-    }
+  async login(parent, { data }, { prisma }, info) {
+    const user = await prisma.query.user({ where: { email: data.email } });
 
-    return prisma.mutation.createUser(data, info);
+    if (!user) throw new Error("User not found");
+
+    const isMatchedPassword = await bycrypt.compare(
+      data.password,
+      user.password
+    );
+
+    if (!isMatchedPassword) {
+      throw new Error("Wrong password");
+    }
+    return {
+      user,
+      token: generateToken({ userId: user.id })
+    };
   },
-  async deleteUser(parent, { id }, { prisma }, info) {
-    const userExists = await prisma.exists.User({ id });
+  async createUser(parent, { data }, { prisma }, info) {
+    const hashedPassword = await hashPassword(password);
 
-    if (!userExists) {
-      throw new Error("User not existed");
-    }
+    const user = await prisma.mutation.createUser({
+      data: {
+        ...data,
+        password: hashedPassword
+      }
+    });
+
+    const token = generateToken({ userId: user.id });
+
+    return {
+      user,
+      token
+    };
+  },
+  async deleteUser(parent, agrs, { prisma }, info) {
+    const userId = getUserId(request);
 
     return prisma.mutation.deleteUser(
       {
         where: {
-          id
+          id: userId
         }
       },
       info
     );
   },
-  async updateUser(parent, { id, data }, { prisma }, info) {
+  async updateUser(parent, { data }, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    if (typeof data.password === "string") {
+      const hashedPassword = await hashPassword(data.password);
+      data.password = hashedPassword;
+    }
+
     return prisma.mutation.updateUser(
       {
         data,
         where: {
-          id
+          id: userId
         }
       },
       info
     );
   },
-  createPost(parent, { data, author }, { prisma }, info) {
+  createPost(parent, { data }, { prisma, request }, info) {
+    const userId = getUserId(request);
     return prisma.mutation.createPost(
       {
         data: {
           ...data,
           author: {
             connect: {
-              id: author
+              id: userId
             }
           }
         }
@@ -49,7 +84,26 @@ const Mutation = {
       info
     );
   },
-  updatePost(parent, { id, data }, { prisma }, info) {
+  async updatePost(parent, { id, data }, { prisma, request }, info) {
+    const userId = getUserId(request);
+    const postExists = await prisma.exists.Post({
+      id,
+      author: {
+        id: userId
+      }
+    });
+
+    const isPublishedPost = await prisma.exists.Post({
+      id,
+      published: true
+    });
+
+    if (!postExists) throw new Error("Unable to update post");
+
+    if (isPublishedPost && !data.published) {
+      await prisma.mutation.deleteManyComments({ where: { post: { id } } });
+    }
+
     return prisma.mutation.updatePost(
       {
         data: {
@@ -62,17 +116,35 @@ const Mutation = {
       info
     );
   },
-  detelePost(parent, { id }, { prisma }, info) {
-    return prisma.mutation.deletePost({ where: { id } }, info);
+  async detelePost(parent, agrs, { prisma, request }, info) {
+    const userId = getUserId(request);
+    const postExists = await prisma.exists.Post({
+      id: agrs.id,
+      author: {
+        id: userId
+      }
+    });
+
+    if (!postExists) throw new Error("Post not found");
+
+    return prisma.mutation.deletePost({ where: { id: agrs.id } }, info);
   },
-  createComment(parent, agrs, { prisma }, info) {
+  async createComment(parent, agrs, { prisma, request }, info) {
+    const userId = getUserId(request);
+    const postExists = await prisma.exists.Post({
+      id: agrs.data.post,
+      published: true
+    });
+
+    if (!postExists) throw new Error("Post not found");
+
     return prisma.mutation.createComment(
       {
         data: {
           text: agrs.data.text,
           author: {
             connect: {
-              id: agrs.data.author
+              id: userId
             }
           },
           post: {
@@ -85,7 +157,18 @@ const Mutation = {
       info
     );
   },
-  updateComment(parent, { id, data }, { prisma }, info) {
+  async updateComment(parent, { id, data }, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    const commentExists = await prisma.exists.Comment({
+      id,
+      author: {
+        id: userId
+      }
+    });
+
+    if (!commentExists) throw new Error("Unable to update comment!");
+
     return prisma.mutation.updateComment(
       {
         data: { text: data.text },
@@ -94,7 +177,18 @@ const Mutation = {
       info
     );
   },
-  deteleComment(parent, { id }, { prisma }, info) {
+  async deteleComment(parent, { id }, { prisma, request }, info) {
+    const userId = getUserId(request);
+
+    const commentExists = await prisma.exists.Comment({
+      id,
+      author: {
+        id: userId
+      }
+    });
+
+    if (!commentExists) throw new Error("Unable to delete comment!");
+
     return prisma.mutation.deleteComment(
       {
         where: { id }

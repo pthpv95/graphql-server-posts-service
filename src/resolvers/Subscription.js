@@ -1,3 +1,5 @@
+import { getUserId } from "../utils/authenticate";
+
 const Subscription = {
   post: {
     subscribe(parent, agrs, { prisma }, info) {
@@ -18,6 +20,23 @@ const Subscription = {
           where: {
             node: {
               post: { id: postId }
+            }
+          }
+        },
+        info
+      );
+    }
+  },
+  myPost: {
+    subscribe(parent, agrs, { request, prisma }, info) {
+      const userId = getUserId(request);
+      return prisma.subscription.post(
+        {
+          where: {
+            node: {
+              author: {
+                id: userId
+              }
             }
           }
         },

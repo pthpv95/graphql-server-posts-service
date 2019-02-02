@@ -1,11 +1,14 @@
 import { Prisma } from "prisma-binding";
+import { fragmentReplacements } from "./resolvers";
 
 const prisma = new Prisma({
   typeDefs: "src/generated/prisma.graphql",
-  endpoint: "http://localhost:4466"
+  endpoint: "http://localhost:4466",
+  secret: "thisismysecret",
+  fragmentReplacements
 });
 
-export default prisma
+export default prisma;
 
 // prisma.query.users(null, "{ id name email posts{id title body}}").then(data => {
 //   console.log(data);
@@ -57,8 +60,6 @@ export default prisma
 //   body: "Docker swarms",
 //   published: true
 // }).then((user) => console.log(user)).catch((err) => console.log(err))
-
-
 
 // prisma.query.comments(null, "{id text author{id name}}").then(data => {
 //   console.log(JSON.stringify(data, undefined, 2));
