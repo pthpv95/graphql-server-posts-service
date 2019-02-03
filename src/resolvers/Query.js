@@ -47,22 +47,11 @@ const Query = {
     return prisma.query.posts(opAgrs, info);
   },
   async post(parent, agrs, { prisma, request }, info) {
-    const userId = getUserId(request, false);
-
     const posts = await prisma.query.posts(
       {
         where: {
           id: agrs.id,
-          OR: [
-            {
-              published: true
-            },
-            {
-              author: {
-                id: userId
-              }
-            }
-          ]
+          published: true
         }
       },
       info
@@ -87,7 +76,7 @@ const Query = {
     }
     return prisma.query.users(opArgs, info);
   },
-  comments(parent, args, ctx, info) {
+  comments(parent, args, { prisma }, info) {
     return prisma.query.comments(null, info);
   }
 };
