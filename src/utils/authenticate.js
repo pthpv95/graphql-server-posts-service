@@ -21,7 +21,7 @@ const getUserId = (request, requiredAuth = true) => {
 
 const generateToken = payload => {
   const token = jwt.sign(payload, "thisismysecret", {
-    expiresIn: "5m"
+    expiresIn: "1w"
   });
 
   return token;

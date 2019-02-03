@@ -9,7 +9,11 @@ const Query = {
     const opAgrs = {
       where: {
         published: true
-      }
+      },
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
+      orderBy: args.orderBy
     };
     if (args.query) {
       opAgrs.where = {
@@ -27,7 +31,10 @@ const Query = {
         author: {
           id: userId
         }
-      }
+      },
+      first: args.first,
+      skip: args.skip,
+      after: agrs.after
     };
 
     if (args.query) {
@@ -68,7 +75,11 @@ const Query = {
     return posts[0];
   },
   users(parent, args, { prisma }, info) {
-    const opArgs = {};
+    const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after
+    };
     if (args.query) {
       opArgs.where = {
         OR: [{ name_contains: args.query }, { email_contains: args.query }]

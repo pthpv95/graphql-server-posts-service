@@ -116,7 +116,7 @@ const Mutation = {
       info
     );
   },
-  async detelePost(parent, agrs, { prisma, request }, info) {
+  async deletePost(parent, agrs, { prisma, request }, info) {
     const userId = getUserId(request);
     const postExists = await prisma.exists.Post({
       id: agrs.id,
@@ -177,7 +177,7 @@ const Mutation = {
       info
     );
   },
-  async deteleComment(parent, { id }, { prisma, request }, info) {
+  async deleteComment(parent, { id }, { prisma, request }, info) {
     const userId = getUserId(request);
 
     const commentExists = await prisma.exists.Comment({

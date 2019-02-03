@@ -1,14 +1,21 @@
-import { Prisma } from "prisma-binding";
-import { fragmentReplacements } from "./resolvers";
+"use strict";
 
-const prisma = new Prisma({
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _prismaBinding = require("prisma-binding");
+
+var _resolvers = require("./resolvers");
+
+var prisma = new _prismaBinding.Prisma({
   typeDefs: "src/generated/prisma.graphql",
   endpoint: process.env.PRISMA_ENDPOINT,
   secret: "thisismysecret",
-  fragmentReplacements
+  fragmentReplacements: _resolvers.fragmentReplacements
 });
 
-export default prisma;
+exports.default = prisma;
 
 // prisma.query.users(null, "{ id name email posts{id title body}}").then(data => {
 //   console.log(data);
