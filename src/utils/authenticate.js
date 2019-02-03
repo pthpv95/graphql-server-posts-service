@@ -7,7 +7,7 @@ const getUserId = (request, requiredAuth = true) => {
 
   if (header) {
     const token = header.replace("Bearer ", "");
-    const decoded = jwt.verify(token, "thisismysecret");
+    const decoded = jwt.verify(token, process.env.PRISMA_SECRET);
 
     return decoded.userId;
   }
@@ -20,7 +20,7 @@ const getUserId = (request, requiredAuth = true) => {
 };
 
 const generateToken = payload => {
-  const token = jwt.sign(payload, "thisismysecret", {
+  const token = jwt.sign(payload, process.env.PRISMA_SECRET, {
     expiresIn: "1w"
   });
 

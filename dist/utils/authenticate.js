@@ -18,7 +18,7 @@ var getUserId = function getUserId(request) {
 
   if (header) {
     var token = header.replace("Bearer ", "");
-    var decoded = _jsonwebtoken2.default.verify(token, "thisismysecret");
+    var decoded = _jsonwebtoken2.default.verify(token, process.env.PRISMA_SECRET);
 
     return decoded.userId;
   }
@@ -31,7 +31,7 @@ var getUserId = function getUserId(request) {
 };
 
 var generateToken = function generateToken(payload) {
-  var token = _jsonwebtoken2.default.sign(payload, "thisismysecret", {
+  var token = _jsonwebtoken2.default.sign(payload, process.env.PRISMA_SECRET, {
     expiresIn: "1w"
   });
 

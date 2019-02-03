@@ -11,7 +11,7 @@ var _resolvers = require("./resolvers");
 var prisma = new _prismaBinding.Prisma({
   typeDefs: "src/generated/prisma.graphql",
   endpoint: process.env.PRISMA_ENDPOINT,
-  secret: "thisismysecret",
+  secret: process.env.PRISMA_SECRET,
   fragmentReplacements: _resolvers.fragmentReplacements
 });
 

@@ -22,7 +22,7 @@ const Mutation = {
     };
   },
   async createUser(parent, { data }, { prisma }, info) {
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashPassword(data.password);
 
     const user = await prisma.mutation.createUser({
       data: {
