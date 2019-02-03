@@ -4,7 +4,7 @@
   "description": "learn graphql from basics",
   "main": "index.js",
   "scripts": {
-    "start": "env-cmd ./config/prod.env node dist/index.js",
+    "start": "node dist/index.js",
     "heroku-postbuild": "babel src --out-dir dist --copy-files",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "env-cmd ./config/dev.env nodemon src/index.js --ext js,graphql --exec babel-node",
