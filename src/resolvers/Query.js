@@ -77,7 +77,21 @@ const Query = {
     return prisma.query.users(opArgs, info);
   },
   comments(parent, args, { prisma }, info) {
-    return prisma.query.comments(null, info);
+    const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
+      orderBy: args.orderBy
+    };
+    if (args.postId) {
+      opArgs.where = {
+        post: {
+          id: args.postId
+        }
+      };
+    }
+
+    return prisma.query.comments(opArgs, info);
   }
 };
 

@@ -1,9 +1,9 @@
-# import PostOrderByInput, UserOrderByInput from './generated/prisma.graphql'
+# import PostOrderByInput, UserOrderByInput, CommentOrderByInput from './generated/prisma.graphql'
 type Query {
   users(query: String, first: Int, skip: Int, after: String, orderBy: UserOrderByInput): [User!]!
   posts(query: String, first: Int, skip: Int, after: String, orderBy: PostOrderByInput): [Post!]!
   post(id: String): Post!
-  comments(query: String): [Comment!]!
+  comments(postId: String, first: Int, skip: Int, after: String, orderBy: CommentOrderByInput): [Comment!]!
   me: User!
   myPost(query: String!, first: Int, skip: Int, after: String): [Post!]!
   sum(numbers: [Float!]): Float!
