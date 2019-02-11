@@ -5,7 +5,7 @@ const Query = {
     const userId = getUserId(request);
     return prisma.query.user({ where: { id: userId } }, info);
   },
-  posts(parent, args, { prisma }, info) {
+  async posts(parent, args, { prisma }, info) {
     const opAgrs = {
       where: {
         published: true
@@ -21,7 +21,7 @@ const Query = {
         OR: [{ title_contains: args.query }, { body_contains: args.query }]
       };
     }
-    return prisma.query.posts(opAgrs, info);
+    return await prisma.query.postsConnection(opAgrs, info);
   },
   async myPost(parent, args, { prisma, request }, info) {
     const userId = getUserId(request);
@@ -34,7 +34,7 @@ const Query = {
       },
       first: args.first,
       skip: args.skip,
-      after: agrs.after
+      after: args.after
     };
 
     if (args.query) {
@@ -44,13 +44,13 @@ const Query = {
       ];
     }
 
-    return prisma.query.posts(opAgrs, info);
+    return prisma.query.postsConnection(opAgrs, info);
   },
-  async post(parent, agrs, { prisma, request }, info) {
+  async post(parent, args, { prisma, request }, info) {
     const posts = await prisma.query.posts(
       {
         where: {
-          id: agrs.id,
+          id: args.id,
           published: true
         }
       },
@@ -76,7 +76,7 @@ const Query = {
     }
     return prisma.query.users(opArgs, info);
   },
-  comments(parent, args, { prisma }, info) {
+  async comments(parent, args, { prisma }, info) {
     const opArgs = {
       first: args.first,
       skip: args.skip,
@@ -91,7 +91,7 @@ const Query = {
       };
     }
 
-    return prisma.query.comments(opArgs, info);
+    return await prisma.query.commentsConnection(opArgs, info);
   }
 };
 
